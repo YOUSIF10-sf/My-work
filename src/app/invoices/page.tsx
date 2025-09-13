@@ -17,7 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { FileDown, FileText, Printer, ChevronDown } from 'lucide-react';
+import { FileDown, Printer, ChevronDown } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Link from 'next/link';
 import {
@@ -39,12 +39,9 @@ import {
 } from '@/components/ui/table';
 
 // استيراد المكتبات اللازمة لتصدير الملفات
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import { Packer, Document, Paragraph, TextRun, Table as DocxTable, TableCell as DocxTableCell, TableRow as DocxTableRow, HeadingLevel, AlignmentType, WidthType, BorderStyle } from 'docx';
 import { saveAs } from 'file-saver';
-import { ValetLogoPath } from '@/components/layout/valet-logo';
-import { AmiriFont } from '@/assets/fonts/amiri-font';
+import { FileText } from 'lucide-react';
 
 
 // تعريف نوع البيانات لهيكل الفاتورة الملخصة
@@ -98,166 +95,89 @@ export default function InvoicesPage() {
   }, [transactions]);
 
 
-  // دالة لتنزيل الفاتورة بصيغة PDF
-  const handleDownloadPDF = () => {
-    const doc = new jsPDF();
-
-    // إضافة الخط العربي وتعيينه
-    doc.addFileToVFS('Amiri-Regular.ttf', AmiriFont);
-    doc.addFont('Amiri-Regular.ttf', 'Amiri', 'normal');
-    doc.setFont('Amiri');
-
-    // إضافة الشعار والعنوان
-    doc.addImage(ValetLogoPath, 'PNG', 14, 12, 10, 10);
-    doc.setFontSize(18);
-    doc.setTextColor(44, 62, 80);
-    doc.text('Valet Insights', 25, 20);
-
-    doc.setFontSize(22);
-    doc.text('ملخص الفاتورة', doc.internal.pageSize.width - 15, 40, { align: 'right' });
-
-    // إضافة تفاصيل الفاتورة
-    const invoiceNumber = `INV-${Date.now()}`;
-    doc.setFontSize(10);
-    doc.text(`رقم الفاتورة: ${invoiceNumber}`, doc.internal.pageSize.width - 15, 50, { align: 'right' });
-    doc.text(`تاريخ الإصدار: ${new Date().toLocaleDateString('ar-SA')}`, doc.internal.pageSize.width - 15, 55, { align: 'right' });
-
-    // إنشاء الجدول
-    const head = [['إجمالي الإيرادات', 'عدد العمليات', 'الموقع (بوابة الخروج)']];
-    const body = invoiceData.map(item => [
-        formatCurrency(item.revenue),
-        item.transactionCount,
-        item.gate
-    ]);
-
-    autoTable(doc, {
-        startY: 65,
-        head: head,
-        body: body,
-        theme: 'striped',
-        headStyles: {
-            fillColor: [44, 62, 80],
-            textColor: 255,
-            font: 'Amiri',
-            halign: 'center',
-        },
-        bodyStyles: {
-            font: 'Amiri',
-            halign: 'center',
-        },
-        alternateRowStyles: {
-            fillColor: [245, 245, 245],
-        },
-        footStyles: {
-            fillColor: [44, 62, 80],
-            textColor: 255,
-            font: 'Amiri',
-            halign: 'center',
-            fontStyle: 'bold',
-        },
-        foot: [
-            [{ content: formatCurrency(totalRevenue), styles: { halign: 'center' } },
-             { content: totalTransactions.toString(), styles: { halign: 'center' } },
-             { content: 'المجموع الإجمالي', styles: { halign: 'center', fontStyle: 'bold' } }],
-        ],
-        didParseCell: function (data) {
-            // محاذاة الأعمدة بشكل صحيح
-            if (data.section === 'body' || data.section === 'foot') {
-                if (data.column.index === 2) {
-                     data.cell.styles.halign = 'right';
-                }
-            }
-             if (data.section === 'head') {
-                if (data.column.index === 2) {
-                     data.cell.styles.halign = 'right';
-                }
-            }
-        },
-    });
-
-    // إضافة التذييل
-    const pageCount = doc.internal.pages.length;
-    for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(8);
-        doc.setTextColor(150);
-        doc.text(`صفحة ${i} من ${pageCount}`, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 10, { align: 'center' });
-    }
-
-    doc.save('Valet-Invoice-Summary.pdf');
+  const handlePrint = () => {
+    window.print();
   };
 
   // دالة لتنزيل الفاتورة بصيغة Word
   const handleDownloadWord = () => {
     const tableRows = [
-      new DocxTableRow({
-        children: [
-          new DocxTableCell({ 
-            children: [new Paragraph({ text: 'الموقع (بوابة الخروج)', heading: HeadingLevel.HEADING_5, alignment: AlignmentType.RIGHT })],
-            borders: { top: { style: BorderStyle.SINGLE, size: 1, color: "000000" }, bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" } }
-          }),
-          new DocxTableCell({ 
-            children: [new Paragraph({ text: 'عدد العمليات', heading: HeadingLevel.HEADING_5, alignment: AlignmentType.CENTER })],
-            borders: { top: { style: BorderStyle.SINGLE, size: 1, color: "000000" }, bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" } }
-          }),
-          new DocxTableCell({ 
-            children: [new Paragraph({ text: 'إجمالي الإيرادات', heading: HeadingLevel.HEADING_5, alignment: AlignmentType.LEFT })],
-            borders: { top: { style: BorderStyle.SINGLE, size: 1, color: "000000" }, bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" } }
-          }),
-        ],
-      }),
+        new DocxTableRow({
+            children: [
+                new DocxTableCell({
+                    children: [new Paragraph({ text: "إجمالي الإيرادات", heading: HeadingLevel.HEADING_5, alignment: AlignmentType.LEFT })],
+                    borders: { top: { style: BorderStyle.SINGLE, size: 1, color: "000000" }, bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" } },
+                }),
+                new DocxTableCell({
+                    children: [new Paragraph({ text: "عدد العمليات", heading: HeadingLevel.HEADING_5, alignment: AlignmentType.CENTER })],
+                    borders: { top: { style: BorderStyle.SINGLE, size: 1, color: "000000" }, bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" } },
+                }),
+                new DocxTableCell({
+                    children: [new Paragraph({ text: "الموقع (بوابة الخروج)", heading: HeadingLevel.HEADING_5, alignment: AlignmentType.RIGHT })],
+                    borders: { top: { style: BorderStyle.SINGLE, size: 1, color: "000000" }, bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" } },
+                }),
+            ],
+        }),
       ...invoiceData.map(
         (item) =>
           new DocxTableRow({
             children: [
-              new DocxTableCell({ children: [new Paragraph({ text: item.gate, alignment: AlignmentType.RIGHT })] }),
-              new DocxTableCell({ children: [new Paragraph({ text: String(item.transactionCount), alignment: AlignmentType.CENTER })] }),
               new DocxTableCell({ children: [new Paragraph({ text: formatCurrency(item.revenue), alignment: AlignmentType.LEFT })] }),
+              new DocxTableCell({ children: [new Paragraph({ text: String(item.transactionCount), alignment: AlignmentType.CENTER })] }),
+              new DocxTableCell({ children: [new Paragraph({ text: item.gate, alignment: AlignmentType.RIGHT })] }),
             ],
           })
       ),
       new DocxTableRow({
         children: [
-          new DocxTableCell({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: 'المجموع الإجمالي', bold: true })] })] }),
-          new DocxTableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: String(totalTransactions), bold: true })] })] }),
           new DocxTableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT, children: [new TextRun({ text: formatCurrency(totalRevenue), bold: true })] })] }),
+          new DocxTableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: String(totalTransactions), bold: true })] })] }),
+          new DocxTableCell({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: 'المجموع الإجمالي', bold: true })] })] }),
         ],
       }),
     ];
 
     const doc = new Document({
-      sections: [
-        {
-          properties: {
-            page: {
-              margin: {
-                top: 720,
-                right: 720,
-                bottom: 720,
-                left: 720,
-              },
+        sections: [
+            {
+                properties: {
+                    page: {
+                        margin: {
+                            top: 720,
+                            right: 720,
+                            bottom: 720,
+                            left: 720,
+                        },
+                    },
+                },
+                children: [
+                    new Paragraph({ text: 'فاتورة الإيرادات الإجمالية', heading: HeadingLevel.HEADING_1, alignment: AlignmentType.CENTER }),
+                    new Paragraph({ text: `تاريخ الإنشاء: ${new Date().toLocaleDateString('ar-SA')}`, alignment: AlignmentType.CENTER, style: 'WellSpaced' }),
+                    new Paragraph({ text: ' ' }), // فراغ
+                    new DocxTable({
+                        rows: tableRows,
+                        width: { size: 100, type: WidthType.PERCENTAGE },
+                    }),
+                ],
             },
-          },
-          children: [
-            new Paragraph({ text: 'فاتورة الإيرادات الإجمالية', heading: HeadingLevel.HEADING_1, alignment: AlignmentType.CENTER }),
-            new Paragraph({ text: `تاريخ الإنشاء: ${new Date().toLocaleDateString('ar-SA')}`, alignment: AlignmentType.CENTER, style: 'WellSpaced' }),
-            new Paragraph({ text: ' ' }), // فراغ
-            new DocxTable({
-              rows: tableRows,
-              width: { size: 100, type: WidthType.PERCENTAGE },
-            }),
-          ],
-        },
-      ],
+        ],
+        styles: {
+            paragraphStyles: [{
+                id: "WellSpaced",
+                name: "Well Spaced",
+                basedOn: "Normal",
+                quickFormat: true,
+                paragraph: {
+                    spacing: { after: 200 },
+                },
+            }]
+        }
     });
+
 
     Packer.toBlob(doc).then((blob) => {
       saveAs(blob, 'Valet-Invoice-Summary.docx');
     });
-  };
-
-  const handlePrint = () => {
-    window.print();
   };
 
   return (
@@ -275,11 +195,7 @@ export default function InvoicesPage() {
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={handlePrint}>
                 <Printer className="w-4 h-4 ml-2" />
-                طباعة الفاتورة
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleDownloadPDF}>
-                <FileText className="w-4 h-4 ml-2" />
-                تنزيل كـ PDF
+                طباعة / حفظ كـ PDF
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleDownloadWord}>
                 <FileDown className="w-4 h-4 ml-2" />
