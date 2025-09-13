@@ -29,7 +29,7 @@ import { DataTablePagination } from './data-table-pagination';
 import { DataTableToolbar } from './data-table-toolbar';
 import { Transaction } from '@/types';
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData extends Transaction, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   state?: {
@@ -45,7 +45,7 @@ interface DataTableProps<TData, TValue> {
   updateTransaction?: (transaction: Transaction) => void;
 }
 
-function DataTableComponent<TData, TValue>({
+function DataTableComponent<TData extends Transaction, TValue>({
   columns,
   data,
   updateTransaction,

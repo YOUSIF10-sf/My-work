@@ -10,6 +10,7 @@ import { useContext, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { FileUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Transaction } from '@/types';
 import {
   type ColumnFiltersState,
   type SortingState,
@@ -71,7 +72,7 @@ export default function OperationsPage() {
         {loading && transactions.length === 0 ? (
            <DataTableSkeleton />
         ) : transactions.length > 0 ? (
-          <DataTable columns={columns} data={transactions} updateTransaction={updateTransaction} {...stateProps} />
+          <DataTable<Transaction, any> columns={columns} data={transactions} updateTransaction={updateTransaction} {...stateProps} />
         ) : (
           <div className="flex h-[60vh] items-center justify-center">
             <Alert className="max-w-xl text-center border-dashed">

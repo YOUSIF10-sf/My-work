@@ -14,11 +14,11 @@ import React from 'react';
 import { analyzeValetData } from '@/ai/flows/analyze-valet-data';
 import * as XLSX from 'xlsx';
 
-interface DataTableToolbarProps<TData> {
+interface DataTableToolbarProps<TData extends Transaction> {
   table: Table<TData>;
 }
 
-function ToolbarComponent<TData>({ table }: DataTableToolbarProps<TData>) {
+function ToolbarComponent<TData extends Transaction>({ table }: DataTableToolbarProps<TData>) {
   const { deleteTransactions, transactions, recalculateFeesForFilteredTransactions, loading } = useContext(AppContext);
   const { toast } = useToast();
   const [exporting, setExporting] = useState(false);
