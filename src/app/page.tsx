@@ -10,14 +10,16 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { FileUp, BarChart2 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { useTranslations } from '@/lib/i18n';
 
 export default function DashboardPage() {
   const { transactions } = useContext(AppContext);
+  const t = useTranslations();
 
   return (
     <AppShell>
       <PageHeader>
-        <PageHeaderTitle>Dashboard</PageHeaderTitle>
+        <PageHeaderTitle>{t.dashboard}</PageHeaderTitle>
       </PageHeader>
       <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {transactions.length > 0 ? (
@@ -27,20 +29,19 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="flex h-[60vh] items-center justify-center">
-            <Alert className="max-w-xl text-center">
-              <BarChart2 className="mx-auto h-6 w-6" />
+            <Alert className="max-w-xl text-center border-dashed">
+              <BarChart2 className="mx-auto h-8 w-8 text-muted-foreground" />
               <AlertTitle className="mt-4 text-xl font-headline">
-                Welcome to Valet Insights
+                {t.welcomeToValetInsights}
               </AlertTitle>
               <AlertDescription className="mt-2 text-muted-foreground">
-                Your dashboard is ready. Upload a data file on the Operations
-                page to see your analytics.
+                {t.dashboardWelcomeMessage}
               </AlertDescription>
               <div className="mt-6">
                 <Button asChild>
                   <Link href="/operations">
                     <FileUp className="mr-2 h-4 w-4" />
-                    Go to Operations
+                    {t.goToOperations}
                   </Link>
                 </Button>
               </div>

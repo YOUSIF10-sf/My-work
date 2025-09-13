@@ -8,7 +8,8 @@ import { DataTableRowActions } from './data-table-row-actions';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 
-export const columns: ColumnDef<Transaction>[] = [
+// The `t` function is now passed as an argument
+export const columns = (t: any): ColumnDef<Transaction>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -18,14 +19,14 @@ export const columns: ColumnDef<Transaction>[] = [
           (table.getIsSomePageRowsSelected() && 'indeterminate')
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
+        aria-label={t.selectAll}
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
+        aria-label={t.selectRow}
       />
     ),
     enableSorting: false,
@@ -34,32 +35,33 @@ export const columns: ColumnDef<Transaction>[] = [
   {
     accessorKey: 'plateNo',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Plate No." />
+      <DataTableColumnHeader column={column} title={t.plateNumber} />
     ),
   },
   {
     accessorKey: 'exitTime',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Exit Time" />
+      <DataTableColumnHeader column={column} title={t.exitTime} />
     ),
     cell: ({ row }) => {
-      return format(row.original.exitTime, 'PPpp');
+      return format(new Date(row.original.exitTime), 'PPpp');
     },
   },
   {
     accessorKey: 'exitGate',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Exit Gate" />
+      <DataTableColumnHeader column={column} title={t.exitGate} />
     ),
   },
   {
     accessorKey: 'shift',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Shift" />
+      <DataTableColumnHeader column={column} title={t.shift} />
     ),
     cell: ({ row }) => {
       const shift = row.original.shift;
-      return <Badge variant={shift === 'Morning' ? 'default' : 'secondary'} className={shift === 'Morning' ? 'bg-amber-500' : 'bg-indigo-500'}>{shift}</Badge>;
+      // Assuming shift can be 'Morning' or 'Evening'
+      return <Badge variant={shift === 'Morning' ? 'default' : 'secondary'} className={shift === 'Morning' ? 'bg-amber-500' : 'bg-indigo-500'}>{t[shift.toLowerCase() as keyof typeof t]}</Badge>;
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
@@ -68,14 +70,14 @@ export const columns: ColumnDef<Transaction>[] = [
   {
     accessorKey: 'duration',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Duration (hrs)" />
+      <DataTableColumnHeader column={column} title={t.durationHours} />
     ),
     cell: ({ row }) => row.original.duration.toFixed(2),
   },
   {
     accessorKey: 'payType',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Pay Type" />
+      <DataTableColumnHeader column={column} title={t.paymentType} />
     ),
      filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
@@ -84,11 +86,11 @@ export const columns: ColumnDef<Transaction>[] = [
   {
     accessorKey: 'totalFee',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Total Fee" />
+      <DataTableColumnHeader column={column} title={t.totalFee} />
     ),
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue('totalFee'));
-      const formatted = new Intl.NumberFormat('en-US', {
+      const formatted = new Intl.NumberFormat('ar-SA', { // Use arabic locale for currency
         style: 'currency',
         currency: 'SAR',
       }).format(amount);
