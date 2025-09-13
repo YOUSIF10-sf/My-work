@@ -1,7 +1,7 @@
 'use client';
 
 import { AppShell } from '@/components/layout/app-shell';
-import { PageHeader, PageHeaderTitle, PageHeaderActions } from '@/components/layout/page-header';
+import { PageHeader, PageHeaderTitle } from '@/components/layout/page-header';
 import { DataTable } from '@/components/operations/data-table/data-table';
 import { columns } from '@/components/operations/data-table/columns';
 import { FileUploader } from '@/components/operations/file-uploader';

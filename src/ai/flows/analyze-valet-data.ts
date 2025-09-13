@@ -181,9 +181,10 @@ const analyzeValetDataFlow = ai.defineFlow(
             highestEarningGate,
             peakHour,
         };
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error in analysis flow:", error);
-        throw new Error(`Failed to analyze data: ${error.message || "Unknown error"}`);
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        throw new Error(`Failed to analyze data: ${errorMessage}`);
     }
   }
 );
