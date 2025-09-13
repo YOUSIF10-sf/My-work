@@ -41,7 +41,7 @@ import {
 // استيراد المكتبات اللازمة لتصدير الملفات
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { Packer, Document, Paragraph, Table as DocxTable, TableCell as DocxTableCell, TableRow as DocxTableRow, HeadingLevel, AlignmentType, WidthType, BorderStyle } from 'docx';
+import { Packer, Document, Paragraph, TextRun, Table as DocxTable, TableCell as DocxTableCell, TableRow as DocxTableRow, HeadingLevel, AlignmentType, WidthType, BorderStyle } from 'docx';
 import { saveAs } from 'file-saver';
 import { ValetLogoPath } from '@/components/layout/valet-logo';
 import { AmiriFont } from '@/assets/fonts/amiri-font';
@@ -218,9 +218,9 @@ export default function InvoicesPage() {
       ),
       new DocxTableRow({
         children: [
-          new DocxTableCell({ children: [new Paragraph({ text: 'المجموع الإجمالي', bold: true, alignment: AlignmentType.RIGHT })] }),
-          new DocxTableCell({ children: [new Paragraph({ text: String(totalTransactions), bold: true, alignment: AlignmentType.CENTER })] }),
-          new DocxTableCell({ children: [new Paragraph({ text: formatCurrency(totalRevenue), bold: true, alignment: AlignmentType.LEFT })] }),
+          new DocxTableCell({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: 'المجموع الإجمالي', bold: true })] })] }),
+          new DocxTableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: String(totalTransactions), bold: true })] })] }),
+          new DocxTableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT, children: [new TextRun({ text: formatCurrency(totalRevenue), bold: true })] })] }),
         ],
       }),
     ];
