@@ -192,9 +192,18 @@ export default function InvoicesPage() {
     const tableRows = [
       new DocxTableRow({
         children: [
-          new DocxTableCell({ children: [new Paragraph({ text: 'الموقع (بوابة الخروج)', heading: HeadingLevel.HEADING_5, alignment: AlignmentType.RIGHT })], styles: { borders: { top: { style: BorderStyle.SINGLE, size: 1, color: "000000" } } } }),
-          new DocxTableCell({ children: [new Paragraph({ text: 'عدد العمليات', heading: HeadingLevel.HEADING_5, alignment: AlignmentType.CENTER })] }),
-          new DocxTableCell({ children: [new Paragraph({ text: 'إجمالي الإيرادات', heading: HeadingLevel.HEADING_5, alignment: AlignmentType.LEFT })] }),
+          new DocxTableCell({ 
+            children: [new Paragraph({ text: 'الموقع (بوابة الخروج)', heading: HeadingLevel.HEADING_5, alignment: AlignmentType.RIGHT })],
+            borders: { top: { style: BorderStyle.SINGLE, size: 1, color: "000000" }, bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" } }
+          }),
+          new DocxTableCell({ 
+            children: [new Paragraph({ text: 'عدد العمليات', heading: HeadingLevel.HEADING_5, alignment: AlignmentType.CENTER })],
+            borders: { top: { style: BorderStyle.SINGLE, size: 1, color: "000000" }, bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" } }
+          }),
+          new DocxTableCell({ 
+            children: [new Paragraph({ text: 'إجمالي الإيرادات', heading: HeadingLevel.HEADING_5, alignment: AlignmentType.LEFT })],
+            borders: { top: { style: BorderStyle.SINGLE, size: 1, color: "000000" }, bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" } }
+          }),
         ],
       }),
       ...invoiceData.map(
