@@ -27,17 +27,29 @@ i18n
           valetFee: 'Valet Fee',
           totalFee: 'Total Fee',
           exitGate: 'Exit Gate',
-          accountantSummarySheet: 'Accountant Summary',
-          generalSummarySheet: 'General Summary',
-          reportFileName: 'Valet_Operations_Report',
           showDuplicates: 'Show Duplicates',
-
-          // New translations for view options
           view: 'View',
           toggleColumns: 'Toggle columns',
-
-          // Translations for column IDs
           actions: 'Actions',
+
+          // New export feature translations
+          reportFileName: 'Valet_Operations_Report',
+          analysisSheetName: 'Analysis',
+          rawDataSheetName: 'Raw Data',
+          noDataAvailable: 'No data available for analysis.',
+          metric: 'Metric',
+          value: 'Value',
+          totalRevenue: 'Total Revenue',
+          totalParkingFees: 'Total Parking Fees',
+          totalValetFees: 'Total Valet Fees',
+          totalTransactions: 'Total Transactions',
+          averageTransactionValue: 'Average Transaction Value',
+          incomeByPayType: 'Income by Payment Type',
+          incomeByExitGate: 'Income by Exit Gate',
+          transactionsByShift: 'Transactions by Shift',
+          CASH: 'Cash',
+          CARD: 'Card', 
+          'N/A': 'N/A',
         },
       },
       ar: {
@@ -59,17 +71,29 @@ i18n
           valetFee: 'رسوم خدمة صف السيارات',
           totalFee: 'المبلغ الإجمالي',
           exitGate: 'بوابة الخروج',
-          accountantSummarySheet: 'ملخص المحاسب',
-          generalSummarySheet: 'ملخص عام',
-          reportFileName: 'تقرير_عمليات_خدمة_صف_السيارات',
           showDuplicates: 'إظهار المكررة',
-
-          // New translations for view options
           view: 'عرض',
           toggleColumns: 'تبديل الأعمدة',
-
-          // Translations for column IDs
           actions: 'الإجراءات',
+
+          // New export feature translations
+          reportFileName: 'تقرير_عمليات_الركن',
+          analysisSheetName: 'تحليل البيانات',
+          rawDataSheetName: 'البيانات الخام',
+          noDataAvailable: 'لا توجد بيانات متاحة للتحليل.',
+          metric: 'المقياس',
+          value: 'القيمة',
+          totalRevenue: 'إجمالي الدخل',
+          totalParkingFees: 'إجمالي رسوم المواقف',
+          totalValetFees: 'إجمالي رسوم خدمة الركن',
+          totalTransactions: 'إجمالي المعاملات',
+          averageTransactionValue: 'متوسط قيمة المعاملة',
+          incomeByPayType: 'الدخل حسب نوع الدفع',
+          incomeByExitGate: 'الدخل حسب بوابة الخروج',
+          transactionsByShift: 'المعاملات حسب الوردية',
+          CASH: 'نقداً',
+          CARD: 'بطاقة',
+          'N/A': 'غير محدد',
         },
       },
     },
