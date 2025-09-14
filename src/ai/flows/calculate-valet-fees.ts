@@ -42,17 +42,30 @@ const calculateValetFeesFlow = ai.defineFlow(
     const { duration, hourlyRate, dailyRate, valetFee } = input;
 
     let parkingFee: number;
-    if (duration <= 6) {
-      parkingFee = duration * hourlyRate;
+
+    if (duration <= 0) {
+      // No fee for zero or negative duration
+      parkingFee = 0;
+    } else if (duration < 7) {
+      // Hourly calculation: round up to the nearest hour
+      const hours = Math.ceil(duration);
+      parkingFee = hours * hourlyRate;
     } else {
-      parkingFee = dailyRate;
+      // Daily calculation: 1 day = 30 hours, starts from 7 hours duration
+      const hoursPerDay = 30;
+      // Durations from 7 to 30 hours count as 1 day.
+      // Durations over 30 hours are calculated based on 30-hour blocks.
+      const numberOfDays = Math.ceil(duration / hoursPerDay);
+      parkingFee = numberOfDays * dailyRate;
     }
 
-    const totalFee = parkingFee + valetFee;
+    // Only add valet fee if there is a parking fee
+    const finalValetFee = parkingFee > 0 ? valetFee : 0;
+    const totalFee = parkingFee + finalValetFee;
 
     return {
       parkingFee,
-      valetFee,
+      valetFee: finalValetFee,
       totalFee,
     };
   }
