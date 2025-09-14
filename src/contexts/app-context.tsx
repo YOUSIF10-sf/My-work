@@ -22,6 +22,12 @@ interface PerGatePricingState {
   [gate: string]: PricingState;
 }
 
+// Define the type for the API payload
+interface CalculateFeesPayload extends PricingState {
+  duration: number;
+  exitGate: string;
+}
+
 const DEFAULT_PRICING: PricingState = {
   hourlyRate: 35,
   dailyRate: 210,
@@ -76,7 +82,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setLanguage((prev) => (prev === 'en' ? 'ar' : 'en'));
   }, []);
 
-  const calculateFeesViaAPI = async (payload: any): Promise<CalculateValetFeesOutput> => {
+  const calculateFeesViaAPI = async (payload: CalculateFeesPayload): Promise<CalculateValetFeesOutput> => {
     const response = await fetch('/api/calculate-fees', {
       method: 'POST',
       headers: {
