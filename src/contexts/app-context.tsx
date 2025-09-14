@@ -2,10 +2,10 @@
 
 import React, { createContext, useState, useCallback, ReactNode } from 'react';
 import type { Transaction } from '@/types';
-import { calculateValetFees } from '@/ai/flows/calculate-valet-fees';
 import { determineShift } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import * as XLSX from 'xlsx';
+import { CalculateValetFeesOutput } from '@/ai/flows/calculate-valet-fees';
 
 // Define a more specific type for Excel row data
 interface ExcelRow {
@@ -75,6 +75,23 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const toggleLanguage = useCallback(() => {
     setLanguage((prev) => (prev === 'en' ? 'ar' : 'en'));
   }, []);
+
+  const calculateFeesViaAPI = async (payload: any): Promise<CalculateValetFeesOutput> => {
+    const response = await fetch('/api/calculate-fees', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'API call failed');
+    }
+
+    return response.json();
+  };
   
   const recalculateFeesForFilteredTransactions = useCallback(async (filteredTransactions: Transaction[]) => {
     if (filteredTransactions.length === 0) {
@@ -96,7 +113,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       const recalculatedTransactions = await Promise.all(
         filteredTransactions.map(async (transaction) => {
           const gatePricing = pricing[transaction.exitGate] || pricing.default;
-          const newFees = await calculateValetFees({
+          const newFees = await calculateFeesViaAPI({
             duration: transaction.duration,
             exitGate: transaction.exitGate,
             ...gatePricing,
@@ -264,7 +281,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
               const gateName = String(row[headerMapping.exitGate!] ?? 'N/A');
               const gatePricing = pricing[gateName] || pricing.default;
               
-              const fees = await calculateValetFees({ 
+              const fees = await calculateFeesViaAPI({ 
                 duration, 
                 exitGate: gateName,
                 ...gatePricing 
