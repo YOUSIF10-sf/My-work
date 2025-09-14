@@ -229,10 +229,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         const headerMapping = {
           entryTime: findHeader(['Entry Time', 'Entry_Time', 'وقت الدخول']),
           exitTime: findHeader(['Exit Time', 'Exit_Time', 'وقت الخروج']),
-          duration: findHeader(['Duration', 'المدة']),
+          duration: findHeader(['Duration', 'Duration (Hours)', 'المدة']),
           exitGate: findHeader(['Exit Gate', 'Exit_Gate', 'بوابة الخروج']),
-          plateNo: findHeader(['Plate No', 'Plate_No', 'رقم اللوحة']),
-          payType: findHeader(['Pay Type', 'Pay_Type', 'نوع الدفع']),
+          plateNo: findHeader(['Plate No', 'Plate Number', 'Plate_No', 'رقم اللوحة']),
+          payType: findHeader(['Pay Type', 'Payment Type', 'Pay_Type', 'نوع الدفع']),
         }
         
         const missingHeaders = Object.entries(headerMapping).filter(([, val]) => !val).map(([key]) => key);
