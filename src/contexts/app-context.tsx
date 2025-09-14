@@ -227,8 +227,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
 
         const headerMapping = {
-          entryTime: findHeader(['Entry Time', 'EntryTime', 'Time In', 'Entry_Time', 'وقت الدخول']),
-          exitTime: findHeader(['Exit Time', 'ExitTime', 'Time Out', 'Exit_Time', 'وقت الخروج']),
+          entryTime: findHeader(['Entry', 'Entry Time', 'EntryTime', 'Time In', 'Entry_Time', 'وقت الدخول']),
+          exitTime: findHeader(['Exit', 'Exit Time', 'ExitTime', 'Time Out', 'Exit_Time', 'وقت الخروج']),
           duration: findHeader(['Duration', 'Duration (Hours)', 'المدة']),
           exitGate: findHeader(['Exit Gate', 'Exit_Gate', 'بوابة الخروج']),
           plateNo: findHeader(['Plate No', 'Plate Number', 'Plate_No', 'رقم اللوحة']),
