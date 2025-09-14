@@ -23,8 +23,8 @@ import {
 } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 
-interface DataTableFacetedFilterProps<TData, TValue> {
-  column?: Column<TData, TValue>;
+interface DataTableFacetedFilterProps<TData> {
+  column?: Column<TData, unknown>;
   title?: string;
   options: {
     label: string;
@@ -33,11 +33,11 @@ interface DataTableFacetedFilterProps<TData, TValue> {
   }[];
 }
 
-function FacetedFilterComponent<TData, TValue>({
+function FacetedFilterComponent<TData>({
   column,
   title,
   options,
-}: DataTableFacetedFilterProps<TData, TValue>) {
+}: DataTableFacetedFilterProps<TData>) {
   const selectedValues = new Set(column?.getFilterValue() as string[]);
 
   return (
@@ -147,4 +147,6 @@ function FacetedFilterComponent<TData, TValue>({
   );
 }
 
-export const DataTableFacetedFilter = React.memo(FacetedFilterComponent);
+export const DataTableFacetedFilter = React.memo(
+  FacetedFilterComponent
+) as <TData>(props: DataTableFacetedFilterProps<TData>) => React.ReactElement;

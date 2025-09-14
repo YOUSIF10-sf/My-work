@@ -28,6 +28,7 @@ import {
 import { DataTablePagination } from './data-table-pagination';
 import { DataTableToolbar } from './data-table-toolbar';
 import { Transaction } from '@/types';
+import { useTranslations } from '@/lib/i18n';
 
 interface DataTableProps<TData extends Transaction, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -55,6 +56,8 @@ function DataTableComponent<TData extends Transaction, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+
+  const t = useTranslations();
 
   const state = props.state ?? {
     sorting,
@@ -90,7 +93,7 @@ function DataTableComponent<TData extends Transaction, TValue>({
 
   return (
     <div className="space-y-4">
-      {props.state && <DataTableToolbar table={table} />}
+      {props.state && <DataTableToolbar table={table} t={t} />}
       <div className="border rounded-md bg-card">
         <Table>
           <TableHeader>

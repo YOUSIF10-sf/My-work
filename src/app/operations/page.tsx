@@ -7,15 +7,11 @@ import { columns } from '@/components/operations/data-table/columns';
 import { FileUploader } from '@/components/operations/file-uploader';
 import { AppContext } from '@/contexts/app-context';
 import { useContext, useState } from 'react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { FileUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Transaction } from '@/types';
 import {
   type ColumnFiltersState,
   type SortingState,
   type VisibilityState,
-  type RowSelectionState,
 } from '@tanstack/react-table';
 import { useTranslations } from '@/lib/i18n';
 
@@ -38,7 +34,7 @@ function DataTableSkeleton() {
         </div>
       </div>
       <div className="flex items-center justify-center pt-4 text-muted-foreground">
-        <p>{t.loading}...</p>
+        <p>{t('loading')}...</p>
       </div>
     </div>
   )
@@ -69,13 +65,13 @@ export default function OperationsPage() {
   return (
     <AppShell>
       <PageHeader>
-        <PageHeaderTitle>{t.operations}</PageHeaderTitle>
+        <PageHeaderTitle>{t('operations')}</PageHeaderTitle>
       </PageHeader>
       <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {loading && transactions.length === 0 ? (
            <DataTableSkeleton />
         ) : transactions.length > 0 ? (
-          <DataTable<Transaction, any> columns={columns(t)} data={transactions} updateTransaction={updateTransaction} {...stateProps} />
+          <DataTable columns={columns(t)} data={transactions} updateTransaction={updateTransaction} {...stateProps} />
         ) : (
            <div className="flex h-[60vh] items-center justify-center">
                 <FileUploader />

@@ -3,13 +3,12 @@
 import { useContext } from 'react';
 import { AppShell } from '@/components/layout/app-shell';
 import { PageHeader, PageHeaderTitle } from '@/components/layout/page-header';
-import { StatsCards } from '@/components/dashboard/stats-cards';
-import { RevenueChart } from '@/components/dashboard/revenue-chart';
 import { AppContext } from '@/contexts/app-context';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { FileUp, BarChart2 } from 'lucide-react';
-import Link from 'next/link';
+import { FileUp, BarChart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { RevenueChart } from '@/components/dashboard/revenue-chart';
 import { useTranslations } from '@/lib/i18n';
 
 export default function DashboardPage() {
@@ -19,32 +18,31 @@ export default function DashboardPage() {
   return (
     <AppShell>
       <PageHeader>
-        <PageHeaderTitle>{t.dashboard}</PageHeaderTitle>
+        <PageHeaderTitle>{t('dashboard')}</PageHeaderTitle>
       </PageHeader>
       <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {transactions.length > 0 ? (
-          <div className="grid gap-6">
-            <StatsCards />
+          <div className="grid grid-cols-1 gap-8">
             <RevenueChart />
           </div>
         ) : (
           <div className="flex h-[60vh] items-center justify-center">
-            <Alert className="max-w-xl text-center border-dashed">
-              <BarChart2 className="mx-auto h-8 w-8 text-muted-foreground" />
-              <AlertTitle className="mt-4 text-xl font-headline">
-                {t.welcomeToValetInsights}
+            <Alert className="max-w-xl text-center">
+              <BarChart className="h-6 w-6 mx-auto mb-2" />
+              <AlertTitle className="mb-2 text-xl font-bold">
+                {t('welcomeToValetInsights')}
               </AlertTitle>
-              <AlertDescription className="mt-2 text-muted-foreground">
-                {t.dashboardWelcomeMessage}
-              </AlertDescription>
-              <div className="mt-6">
-                <Button asChild>
+              <AlertDescription className="text-lg text-muted-foreground">
+                {t('dashboardWelcomeMessage')}
+                <div className="mt-4">
                   <Link href="/operations">
-                    <FileUp className="mr-2 h-4 w-4" />
-                    {t.goToOperations}
+                    <Button>
+                      <FileUp className="mr-2 h-4 w-4" />
+                      {t('uploadFile')}
+                    </Button>
                   </Link>
-                </Button>
-              </div>
+                </div>
+              </AlertDescription>
             </Alert>
           </div>
         )}

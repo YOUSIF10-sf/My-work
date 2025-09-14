@@ -1,5 +1,6 @@
 export type Transaction = {
   id: string;
+  entryTime: Date;
   exitTime: Date;
   exitGate: string;
   duration: number;

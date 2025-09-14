@@ -12,13 +12,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import { TFunction } from '@/lib/i18n';
 
 interface DataTableViewOptionsProps<TData> {
   table: Table<TData>;
+  t: TFunction;
 }
 
 export function DataTableViewOptions<TData>({
   table,
+  t
 }: DataTableViewOptionsProps<TData>) {
   return (
     <DropdownMenu>
@@ -29,11 +32,11 @@ export function DataTableViewOptions<TData>({
           className="ml-auto hidden h-8 lg:flex"
         >
           <Columns3 className="mr-2 h-4 w-4" />
-          View
+          {t('view')}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[150px]">
-        <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
+        <DropdownMenuLabel>{t('toggleColumns')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {table
           .getAllColumns()
@@ -49,7 +52,7 @@ export function DataTableViewOptions<TData>({
                 checked={column.getIsVisible()}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >
-                {column.id.replace(/([A-Z])/g, ' $1')}
+                {t(column.id).replace(/([A-Z])/g, ' $1')}
               </DropdownMenuCheckboxItem>
             );
           })}

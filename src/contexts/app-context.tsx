@@ -7,6 +7,11 @@ import { determineShift } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import * as XLSX from 'xlsx';
 
+// Define a more specific type for Excel row data
+interface ExcelRow {
+  [key: string]: string | number | Date | null;
+}
+
 export interface PricingState {
   hourlyRate: number;
   dailyRate: number;
@@ -57,7 +62,6 @@ export const AppContext = createContext<AppContextType>({
   updatePricing: () => {},
 });
 
-
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
@@ -101,12 +105,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         })
       );
 
-      // Create a map of updated transactions for efficient lookup
       const updatedTransactionsMap = new Map(
         recalculatedTransactions.map((t) => [t.id, t])
       );
 
-      // Update the main transactions list
       setTransactions((prevTransactions) =>
         prevTransactions.map(
           (t) => updatedTransactionsMap.get(t.id) || t
@@ -118,11 +120,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         description: `Fees for ${recalculatedTransactions.length} transactions have been updated.`,
       });
 
-    } catch (e: any) {
+    } catch (e: unknown) {
+        const errorMessage = e instanceof Error ? e.message : 'Could not update transaction fees.';
         toast({
           variant: 'destructive',
           title: 'Error Recalculating Fees',
-          description: e.message || 'Could not update transaction fees.',
+          description: errorMessage,
         });
     } finally {
         setLoading(false);
@@ -132,8 +135,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const updatePricing = useCallback((gate: string, newPricing: PricingState) => {
     setPricing((prevPricing) => ({ ...prevPricing, [gate]: newPricing }));
-    // We no longer automatically recalculate all transactions.
-    // This will be triggered manually from the operations page.
     toast({
       title: 'Pricing Updated',
       description: `Pricing for ${gate === 'default' ? 'Default' : gate} is set. Go to the Operations page to apply it to transactions.`,
@@ -185,13 +186,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         const workbook = XLSX.read(data, { type: 'array', cellDates: true });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
-        let jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, { raw: false, defval: null });
+        const jsonData = XLSX.utils.sheet_to_json<ExcelRow>(worksheet, { raw: false, defval: null });
 
         if (!jsonData || jsonData.length === 0) {
           throw new Error("The Excel file is empty or contains no processable data.");
         }
 
-        const headers: string[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 })[0] as string[];
+        const headerRow = XLSX.utils.sheet_to_json(worksheet, { header: 1 })[0] as string[];
+        const headers: string[] = headerRow ? headerRow.map(String) : [];
         
         const findHeader = (possibleNames: string[]) => {
           for (const name of possibleNames) {
@@ -202,6 +204,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
 
         const headerMapping = {
+          entryTime: findHeader(['Entry Time', 'Entry_Time', 'وقت الدخول']),
           exitTime: findHeader(['Exit Time', 'Exit_Time', 'وقت الخروج']),
           duration: findHeader(['Duration', 'المدة']),
           exitGate: findHeader(['Exit Gate', 'Exit_Gate', 'بوابة الخروج']),
@@ -209,7 +212,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           payType: findHeader(['Pay Type', 'Pay_Type', 'نوع الدفع']),
         }
         
-        const missingHeaders = Object.entries(headerMapping).filter(([key, val]) => !val).map(([key, _]) => key);
+        const missingHeaders = Object.entries(headerMapping).filter(([, val]) => !val).map(([key]) => key);
         if (missingHeaders.length > 0) {
           throw new Error(`Missing required columns: ${missingHeaders.join(', ')}`);
         }
@@ -220,13 +223,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                 return null;
               }
 
+              const entryTimeValue = row[headerMapping.entryTime!];
               const exitTimeValue = row[headerMapping.exitTime!];
               const durationValue = row[headerMapping.duration!];
 
-              if (!exitTimeValue || durationValue === null || durationValue === undefined) {
+              if (!entryTimeValue || !exitTimeValue || durationValue === null || durationValue === undefined) {
                   return null;
               }
 
+              const entryTime = new Date(entryTimeValue);
               const exitTime = new Date(exitTimeValue);
               let duration: number;
 
@@ -252,22 +257,24 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                    throw new Error(`Unsupported duration type: ${typeof durationValue}`);
               }
               
-              if (isNaN(exitTime.getTime()) || typeof duration !== 'number' || isNaN(duration)) {
-                throw new Error(`Invalid data format at row ${index + 2}. Check Exit Time and Duration.`);
+              if (isNaN(entryTime.getTime()) || isNaN(exitTime.getTime()) || typeof duration !== 'number' || isNaN(duration)) {
+                throw new Error(`Invalid data format at row ${index + 2}. Check Entry Time, Exit Time and Duration.`);
               }
               
-              const gatePricing = pricing[row[headerMapping.exitGate!]] || pricing.default;
+              const gateName = String(row[headerMapping.exitGate!] ?? 'N/A');
+              const gatePricing = pricing[gateName] || pricing.default;
               
               const fees = await calculateValetFees({ 
                 duration, 
-                exitGate: row[headerMapping.exitGate!],
+                exitGate: gateName,
                 ...gatePricing 
               });
 
               const transaction: Transaction = {
                 id: crypto.randomUUID(),
+                entryTime,
                 exitTime,
-                exitGate: String(row[headerMapping.exitGate!] ?? 'N/A'),
+                exitGate: gateName,
                 duration,
                 plateNo: String(row[headerMapping.plateNo!] ?? 'N/A'),
                 payType: String(row[headerMapping.payType!] ?? 'N/A'),
@@ -275,9 +282,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                 ...fees,
               };
               return transaction;
-            } catch (e: any) {
-              console.warn(`Error processing row ${index + 2}:`, e.message, 'Row data:', row);
-              return null; // Return null for rows that fail, instead of throwing
+            } catch (e: unknown) {
+                const errorMessage = e instanceof Error ? e.message : "Unknown error";
+                console.warn(`Error processing row ${index + 2}:`, errorMessage, 'Row data:', row);
+                return null; 
             }
           });
 
@@ -294,13 +302,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           description: `${processedTransactions.length} transactions have been successfully loaded.`,
         });
 
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred during processing.';
         console.error("Error in processAndSetTransactions:", err);
-        setError(err.message || 'An unknown error occurred during processing.');
+        setError(errorMessage);
         toast({
           variant: "destructive",
           title: "Processing Failed",
-          description: err.message || 'Could not process the file.',
+          description: errorMessage,
         });
         setTransactions([]);
       } finally {

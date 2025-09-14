@@ -35,15 +35,15 @@ import { useToast } from '@/hooks/use-toast';
 import { AppContext } from '@/contexts/app-context';
 import type { Transaction } from '@/types';
 import { calculateValetFees } from '@/ai/flows/calculate-valet-fees';
-import { useTranslations } from '@/lib/i18n'; // استيراد hook الترجمة
+import { TFunction, useTranslations } from '@/lib/i18n'; // استيراد hook الترجمة
 
 // تحديث السكيما برسائل مترجمة
-const getEditTransactionSchema = (t: any) => z.object({
-  plateNo: z.string().min(1, t.plateNumberRequired),
-  exitTime: z.date({ required_error: t.exitTimeRequired }),
-  exitGate: z.string().min(1, t.exitGateRequired),
-  duration: z.coerce.number().min(0, t.durationPositive),
-  payType: z.string().min(1, t.paymentTypeRequired),
+const getEditTransactionSchema = (t: TFunction) => z.object({
+  plateNo: z.string().min(1, t('plateNumberRequired')),
+  exitTime: z.date({ required_error: t('exitTimeRequired') }),
+  exitGate: z.string().min(1, t('exitGateRequired')),
+  duration: z.coerce.number().min(0, t('durationPositive')),
+  payType: z.string().min(1, t('paymentTypeRequired')),
 });
 
 type EditTransactionFormValues = z.infer<ReturnType<typeof getEditTransactionSchema>>;
@@ -107,16 +107,16 @@ export function EditTransactionDialog({
 
       updateTransaction(updatedTransaction);
       toast({
-        title: t.success,
-        description: t.transactionUpdated, // استخدام الترجمة
+        title: t('success'),
+        description: t('transactionUpdated'), // استخدام الترجمة
       });
       setIsOpen(false);
     } catch (error) {
       console.error('Failed to update transaction:', error);
       toast({
         variant: 'destructive',
-        title: t.error,
-        description: t.transactionUpdateFailed, // استخدام الترجمة
+        title: t('error'),
+        description: t('transactionUpdateFailed'), // استخدام الترجمة
       });
     }
   };
@@ -125,9 +125,9 @@ export function EditTransactionDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{t.editTransaction}</DialogTitle>
+          <DialogTitle>{t('editTransaction')}</DialogTitle>
           <DialogDescription>
-            {t.editTransactionDescription}
+            {t('editTransactionDescription')}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -137,7 +137,7 @@ export function EditTransactionDialog({
               name="plateNo"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t.plateNumber}</FormLabel>
+                  <FormLabel>{t('plateNumber')}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -150,7 +150,7 @@ export function EditTransactionDialog({
               name="exitGate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t.exitGate}</FormLabel>
+                  <FormLabel>{t('exitGate')}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -163,7 +163,7 @@ export function EditTransactionDialog({
               name="exitTime"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>{t.exitTime}</FormLabel>
+                  <FormLabel>{t('exitTime')}</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -177,7 +177,7 @@ export function EditTransactionDialog({
                           {field.value ? (
                             format(field.value, 'PPP HH:mm:ss')
                           ) : (
-                            <span>{t.pickDate}</span>
+                            <span>{t('pickDate')}</span>
                           )}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
@@ -204,7 +204,7 @@ export function EditTransactionDialog({
               name="duration"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t.durationHours}</FormLabel>
+                  <FormLabel>{t('durationHours')}</FormLabel>
                   <FormControl>
                     <Input type="number" step="0.01" {...field} />
                   </FormControl>
@@ -217,7 +217,7 @@ export function EditTransactionDialog({
               name="payType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t.paymentType}</FormLabel>
+                  <FormLabel>{t('paymentType')}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -227,11 +227,11 @@ export function EditTransactionDialog({
             />
             <DialogFooter>
               <Button type="button" variant="ghost" onClick={() => setIsOpen(false)}>
-                {t.cancel}
+                {t('cancel')}
               </Button>
               <Button type="submit">
                 <Save className="mr-2 h-4 w-4" />
-                {t.save}
+                {t('save')}
               </Button>
             </DialogFooter>
           </form>

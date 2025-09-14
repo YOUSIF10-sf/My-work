@@ -32,7 +32,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
 import { Save } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Info } from 'lucide-react';
@@ -54,7 +53,6 @@ const DEFAULT_PRICING: PricingState = {
 
 export default function SettingsPage() {
   const { transactions, pricing, updatePricing } = useContext(AppContext);
-  const { toast } = useToast();
   const [selectedGate, setSelectedGate] = useState<string>('default');
 
   const uniqueGates = [
