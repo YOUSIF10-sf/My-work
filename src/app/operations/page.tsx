@@ -41,7 +41,12 @@ function DataTableSkeleton() {
 }
 
 export default function OperationsPage() {
-  const { transactions, loading, updateTransaction } = useContext(AppContext);
+  const { 
+    transactions, 
+    loading, 
+    updateTransaction, 
+    recalculateFeesForFilteredTransactions 
+  } = useContext(AppContext);
   const t = useTranslations();
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -71,7 +76,13 @@ export default function OperationsPage() {
         {loading && transactions.length === 0 ? (
            <DataTableSkeleton />
         ) : transactions.length > 0 ? (
-          <DataTable columns={columns(t)} data={transactions} updateTransaction={updateTransaction} {...stateProps} />
+          <DataTable 
+            columns={columns(t)} 
+            data={transactions} 
+            updateTransaction={updateTransaction} 
+            recalculateFees={recalculateFeesForFilteredTransactions} // Pass the function
+            {...stateProps} 
+          />
         ) : (
            <div className="flex h-[60vh] items-center justify-center">
                 <FileUploader />

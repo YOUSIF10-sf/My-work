@@ -33,6 +33,7 @@ import { useTranslations } from '@/lib/i18n';
 interface DataTableProps<TData extends Transaction, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  recalculateFees: (transactions: TData[]) => Promise<boolean>; // Add this prop
   state?: {
     sorting: SortingState;
     columnVisibility: VisibilityState;
@@ -49,6 +50,7 @@ interface DataTableProps<TData extends Transaction, TValue> {
 function DataTableComponent<TData extends Transaction, TValue>({
   columns,
   data,
+  recalculateFees, // Destructure the new prop
   updateTransaction,
   ...props
 }: DataTableProps<TData, TValue>) {
@@ -93,7 +95,8 @@ function DataTableComponent<TData extends Transaction, TValue>({
 
   return (
     <div className="space-y-4">
-      {props.state && <DataTableToolbar table={table} t={t} />}
+      {/* Pass the recalculateFees prop to the toolbar */}
+      {props.state && <DataTableToolbar table={table} t={t} recalculateFees={recalculateFees} />}
       <div className="border rounded-md bg-card">
         <Table>
           <TableHeader>

@@ -10,13 +10,21 @@ i18n
     resources: {
       en: {
         translation: {
-          // Existing translations
+          // General UI
           filterByPlate: 'Filter by plate...',
-          morning: 'Morning',
-          evening: 'Evening',
           reset: 'Reset',
           download: 'Download',
           loading: 'Loading...',
+          view: 'View',
+          toggleColumns: 'Toggle columns',
+          actions: 'Actions',
+          operations: 'Operations',
+
+          // Shifts
+          morning: 'Morning',
+          evening: 'Evening',
+          
+          // Data Columns
           plateNo: 'Plate Number',
           entryTime: 'Entry Time',
           exitTime: 'Exit Time',
@@ -27,12 +35,15 @@ i18n
           valetFee: 'Valet Fee',
           totalFee: 'Total Fee',
           exitGate: 'Exit Gate',
+          
+          // Toolbar Features
           showDuplicates: 'Show Duplicates',
-          view: 'View',
-          toggleColumns: 'Toggle columns',
-          actions: 'Actions',
+          recalculateFees: 'Recalculate Fees',
+          recalculating: 'Recalculating...',
+          recalculationSuccess: 'Fees recalculated successfully.',
+          recalculationError: 'Failed to recalculate fees.',
 
-          // New export feature translations
+          // Export
           reportFileName: 'Valet_Operations_Report',
           analysisSheetName: 'Analysis',
           rawDataSheetName: 'Raw Data',
@@ -54,13 +65,21 @@ i18n
       },
       ar: {
         translation: {
-          // Existing translations
+          // General UI
           filterByPlate: 'بحث حسب اللوحة...',
-          morning: 'صباحي',
-          evening: 'مسائي',
           reset: 'إعادة تعيين',
           download: 'تحميل',
           loading: 'جاري التحميل...',
+          view: 'عرض',
+          toggleColumns: 'تبديل الأعمدة',
+          actions: 'الإجراءات',
+          operations: 'العمليات',
+
+          // Shifts
+          morning: 'صباحي',
+          evening: 'مسائي',
+
+          // Data Columns
           plateNo: 'رقم اللوحة',
           entryTime: 'وقت الدخول',
           exitTime: 'وقت الخروج',
@@ -71,12 +90,15 @@ i18n
           valetFee: 'رسوم خدمة صف السيارات',
           totalFee: 'المبلغ الإجمالي',
           exitGate: 'بوابة الخروج',
+          
+          // Toolbar Features
           showDuplicates: 'إظهار المكررة',
-          view: 'عرض',
-          toggleColumns: 'تبديل الأعمدة',
-          actions: 'الإجراءات',
+          recalculateFees: 'إعادة حساب الرسوم',
+          recalculating: 'جاري الحساب...',
+          recalculationSuccess: 'تمت إعادة حساب الرسوم بنجاح.',
+          recalculationError: 'فشلت إعادة حساب الرسوم.',
 
-          // New export feature translations
+          // Export
           reportFileName: 'تقرير_عمليات_الركن',
           analysisSheetName: 'تحليل البيانات',
           rawDataSheetName: 'البيانات الخام',

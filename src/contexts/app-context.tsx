@@ -43,7 +43,7 @@ interface AppContextType {
   processAndSetTransactions: (
     file: File
   ) => Promise<void>;
-  recalculateFeesForFilteredTransactions: (filteredTransactions: Transaction[]) => Promise<void>;
+  recalculateFeesForFilteredTransactions: (filteredTransactions: Transaction[]) => Promise<boolean>; // Changed return type
   loading: boolean;
   error: string | null;
   language: 'en' | 'ar';
@@ -59,7 +59,7 @@ export const AppContext = createContext<AppContextType>({
   updateTransaction: () => {},
   deleteTransactions: () => {},
   processAndSetTransactions: async () => {},
-  recalculateFeesForFilteredTransactions: async () => {},
+  recalculateFeesForFilteredTransactions: async () => false, // Changed default return value
   loading: false,
   error: null,
   language: 'en',
@@ -99,22 +99,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     return response.json();
   };
   
-  const recalculateFeesForFilteredTransactions = useCallback(async (filteredTransactions: Transaction[]) => {
+  const recalculateFeesForFilteredTransactions = useCallback(async (filteredTransactions: Transaction[]): Promise<boolean> => {
     if (filteredTransactions.length === 0) {
-      toast({
-        variant: 'destructive',
-        title: 'No Transactions to Update',
-        description: 'There are no filtered transactions to apply new pricing to.',
-      });
-      return;
+      return false; // No transactions to update
     }
 
     setLoading(true);
-    toast({
-      title: 'Updating Fees...',
-      description: `Recalculating fees for ${filteredTransactions.length} filtered transactions.`,
-    });
-
     try {
       const recalculatedTransactions = await Promise.all(
         filteredTransactions.map(async (transaction) => {
@@ -137,23 +127,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           (t) => updatedTransactionsMap.get(t.id) || t
         )
       );
-
-      toast({
-        title: 'Update Complete',
-        description: `Fees for ${recalculatedTransactions.length} transactions have been updated.`,
-      });
+      return true; // Success
 
     } catch (e: unknown) {
-        const errorMessage = e instanceof Error ? e.message : 'Could not update transaction fees.';
-        toast({
-          variant: 'destructive',
-          title: 'Error Recalculating Fees',
-          description: errorMessage,
-        });
+        console.error("Error recalculating fees:", e);
+        return false; // Failure
     } finally {
         setLoading(false);
     }
-  }, [pricing, toast]);
+  }, [pricing]); // Removed toast from dependencies
 
 
   const updatePricing = useCallback((gate: string, newPricing: PricingState) => {
@@ -233,11 +215,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           exitGate: findHeader(['Exit Gate', 'Exit_Gate', 'بوابة الخروج']),
           plateNo: findHeader(['Plate No', 'Plate Number', 'Plate_No', 'رقم اللوحة']),
           payType: findHeader(['Pay Type', 'Payment Type', 'Pay_Type', 'نوع الدفع']),
-        }
+        };
         
-        const missingHeaders = Object.entries(headerMapping).filter(([, val]) => !val).map(([key]) => key);
+        // Make entryTime optional, but ensure duration and exitTime are present
+        const requiredHeaders = ['exitTime', 'duration'];
+        const missingHeaders = requiredHeaders.filter(h => !headerMapping[h as keyof typeof headerMapping]);
+
         if (missingHeaders.length > 0) {
-          throw new Error(`Missing required columns: ${missingHeaders.join(', ')}`);
+          throw new Error(`Missing required columns: ${missingHeaders.join(', ')}. Found headers: [${headers.join(', ')}]`);
         }
         
         const transactionPromises = jsonData.map(async (row, index) => {
@@ -246,15 +231,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                 return null;
               }
 
-              const entryTimeValue = row[headerMapping.entryTime!];
               const exitTimeValue = row[headerMapping.exitTime!];
               const durationValue = row[headerMapping.duration!];
 
-              if (!entryTimeValue || !exitTimeValue || durationValue === null || durationValue === undefined) {
+              if (!exitTimeValue || durationValue === null || durationValue === undefined) {
                   return null;
               }
-
-              const entryTime = new Date(entryTimeValue);
+              
               const exitTime = new Date(exitTimeValue);
               let duration: number;
 
@@ -278,6 +261,17 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                   }
               } else {
                    throw new Error(`Unsupported duration type: ${typeof durationValue}`);
+              }
+
+              // Calculate entryTime if not present
+              let entryTime: Date;
+              const entryTimeValue = headerMapping.entryTime ? row[headerMapping.entryTime] : null;
+              if (entryTimeValue) {
+                entryTime = new Date(entryTimeValue);
+              } else {
+                // Calculate entry time by subtracting duration from exit time
+                const durationInMilliseconds = duration * 60 * 60 * 1000;
+                entryTime = new Date(exitTime.getTime() - durationInMilliseconds);
               }
               
               if (isNaN(entryTime.getTime()) || isNaN(exitTime.getTime()) || typeof duration !== 'number' || isNaN(duration)) {

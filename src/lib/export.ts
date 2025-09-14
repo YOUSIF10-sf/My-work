@@ -18,7 +18,7 @@ export const exportToExcel = (data: Transaction[], t: TFunction) => {
     const analysisSheet = XLSX.utils.json_to_sheet(analysis.dataForSheet);
 
     // --- Auto-fit columns for analysis sheet ---
-    const analysisCols = Object.keys(analysis.dataForSheet[0] || {}).map(key => ({ wch: Math.max(key.length, ...analysis.dataForSheet.map(row => String(row[key as keyof AnalysisData]).length)) + 2 }));
+    const analysisCols = Object.keys(analysis.dataForSheet[0] || {}).map(key => ({ wch: Math.max(key.length, ...analysis.dataForSheet.map(row => String(row[key]).length)) + 2 }));
     analysisSheet['!cols'] = analysisCols;
 
     // 2. RAW DATA SHEET
@@ -54,7 +54,7 @@ export const exportToExcel = (data: Transaction[], t: TFunction) => {
 const analyzeTransactions = (transactions: Transaction[], t: TFunction) => {
     if (transactions.length === 0) {
         return {
-            dataForSheet: [[t('noDataAvailable')]],
+            dataForSheet: [{ [t('metric')]: t('noDataAvailable'), [t('value')]: '' }],
             // Return zeroed or empty values for all stats
             totalRevenue: 0,
             totalParkingFees: 0,

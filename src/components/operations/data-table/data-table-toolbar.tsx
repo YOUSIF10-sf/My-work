@@ -3,6 +3,7 @@
 import {
   Cross2Icon,
   DownloadIcon,
+  ReloadIcon, // Import the new icon
 } from '@radix-ui/react-icons';
 import { type Table } from '@tanstack/react-table';
 
@@ -12,18 +13,22 @@ import { DataTableViewOptions } from './data-table-view-options';
 import { DataTableFacetedFilter } from './data-table-faceted-filter';
 
 import * as React from 'react';
-import { exportToExcel } from '@/lib/export'; // Make sure this path is correct
+import { exportToExcel } from '@/lib/export';
 import { Transaction } from '@/types';
 import { TFunction } from '@/lib/i18n';
+import { useToast } from '@/hooks/use-toast'; // Import useToast
 
-interface DataTableToolbarProps<TData> {
+interface DataTableToolbarProps<TData extends Transaction> {
   table: Table<TData>;
   t: TFunction;
+  recalculateFees: (transactions: TData[]) => Promise<boolean>; // Add this prop
 }
 
-export function DataTableToolbar<TData extends Transaction>({ table, t }: DataTableToolbarProps<TData>) {
+export function DataTableToolbar<TData extends Transaction>({ table, t, recalculateFees }: DataTableToolbarProps<TData>) {
+  const { toast } = useToast(); // Initialize toast
   const isFiltered = table.getState().columnFilters.length > 0;
   const [isExporting, setIsExporting] = React.useState(false);
+  const [isRecalculating, setIsRecalculating] = React.useState(false); // Add recalculating state
   const [showOnlyDuplicates, setShowOnlyDuplicates] = React.useState(false);
 
   const handleExport = async () => {
@@ -36,6 +41,28 @@ export function DataTableToolbar<TData extends Transaction>({ table, t }: DataTa
     } finally {
       setIsExporting(false);
     }
+  };
+
+  // New handler for recalculating fees
+  const handleRecalculate = async () => {
+    setIsRecalculating(true);
+    const filteredData = table.getFilteredRowModel().rows.map(row => row.original);
+    
+    const success = await recalculateFees(filteredData);
+
+    if (success) {
+      toast({
+        title: t('recalculationSuccess'),
+        description: `${filteredData.length} transactions have been updated.`
+      });
+    } else {
+      toast({
+        variant: 'destructive',
+        title: t('recalculationError'),
+        description: 'Please try again later.',
+      });
+    }
+    setIsRecalculating(false);
   };
 
   React.useEffect(() => {
@@ -117,6 +144,18 @@ export function DataTableToolbar<TData extends Transaction>({ table, t }: DataTa
         )}
       </div>
       <div className="flex items-center space-x-2">
+        {/* New Recalculate Button */}
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8"
+          onClick={handleRecalculate}
+          disabled={isRecalculating || table.getFilteredRowModel().rows.length === 0}
+        >
+          <ReloadIcon className="mr-2 h-4 w-4" />
+          {isRecalculating ? t('recalculating') : t('recalculateFees')}
+        </Button>
+
         <Button
           variant="outline"
           size="sm"
